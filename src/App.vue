@@ -4,18 +4,61 @@ import TheWelcome from './components/TheWelcome.vue'
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
-
-  <main>
-    <TheWelcome />
-  </main>
+  Slt
+  <input v-model="nom" />
+  <button @click="envoyerMsg()">Envoyer</button>
+  {{ nom }}
 </template>
+
+<script>
+
+    var pusher = new Pusher('de4f43d4d2ef0b884d48', {
+      cluster: 'eu'
+    });
+
+    var channel = pusher.subscribe('my-channel');
+   
+
+export default {
+  data: () => ({
+    ds : null,
+    nom :'',
+  }),
+
+  watch:{
+    nom: function(oldNom, newNom){
+      console.log(newNom)
+    }
+  },
+
+  mounted(){
+    console.log(channel)
+    channel.bind('my-event', data => {this.updateNom(data)});
+  },
+
+  methods:{
+  async envoyerMsg(){
+   let url = 'http://localhost:8000/api/test'
+   let data = {
+     nom : this.nom
+   }
+   let res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+  },
+
+  updateNom: function(data){
+    this.nom = data.message
+  }
+  }
+}
+
+
+
+</script>
+
 
 <style>
 @import './assets/base.css';

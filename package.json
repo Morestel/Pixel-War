@@ -7,6 +7,10 @@
     "preview": "vite preview --port 5050"
   },
   "dependencies": {
+    "body-parser": "^1.20.0",
+    "express": "^4.17.3",
+    "pusher": "^5.0.1",
+    "pusher-js": "^7.0.6",
     "vue": "^3.2.31"
   },
   "devDependencies": {
