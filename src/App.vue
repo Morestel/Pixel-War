@@ -41,6 +41,7 @@ export default {
     channel.bind('my-event', data => {this.updateNom(data)});
     channel.bind('draw-point', data => {this.drawPoint(data)});
     this.initCanvas()
+    this.loadData()
   },
 
   methods:{
@@ -56,15 +57,24 @@ export default {
               });
     },
 
+    async loadData(){
+      let url = 'http://localhost:8000/api/get_all'
+      let res = await fetch(url)
+      let data = await res.json()
+      console.log(data["pixels"])
+      data.pixels.forEach(element => {
+        let pixel = {x : element[0], y : element[1], color : element[2]}
+        this.drawPoint(pixel)
+      });
+    },
+
     updateNom: function(data){
       this.nom = data.message
     },
 
     initCanvas: function(){
       this.canvas = document.getElementById('pixel-war');
-      console.log(this.canvas)
       this.ctx = this.canvas.getContext('2d')
-      console.log(this.ctx)
     },
 
     clicCanvas: function(event){ // When a user clic we retrieve the coordinates of the click
@@ -95,6 +105,7 @@ export default {
       let x = data.x - data.x%this.size_pixel
       let y = data.y - data.y%this.size_pixel
       this.ctx.fillRect(x, y, this.size_pixel, this.size_pixel)
+      console.log('Drawing point at x: ' + x + ', y: '+ y)
     },
 
     colorSelected: function(event){

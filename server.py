@@ -78,6 +78,16 @@ async def read_root(request: Request):
 async def draw_point(request: Request):
     print("Drawing request received")
     data = await request.json()
+    # We save it in the database
+    insert_color(data['x'], data['y'], data['color'])
+    # Then we send it to all the other clients
     pusher_client.trigger('my-channel', 'draw-point', data)
 
-    
+@app.get("/api/get_all")
+async def get_all(request: Request): # We get all the pixels that we will send to all the users at the connexion
+    conn = sqlite3.connect('pixel_base.db')
+    cursor = conn.cursor()
+    cursor.execute("""SELECT x, y, color FROM pixel;""")
+    pixels = cursor.fetchall()
+    conn.close()
+    return {'pixels': pixels}
