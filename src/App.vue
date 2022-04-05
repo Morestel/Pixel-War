@@ -8,6 +8,8 @@ import TheWelcome from './components/TheWelcome.vue'
   <input v-model="nom" />
   <button @click="envoyerMsg()">Envoyer</button>
   {{ nom }}
+  <br>
+  <canvas id="pixel-war" width="500" height="500" @click="clicCanvas($event)"></canvas>
 </template>
 
 <script>
@@ -23,35 +25,58 @@ export default {
   data: () => ({
     ds : null,
     nom :'',
+    canvas : '',
+    ctx : Object,
+    coordinate_x: 0,
+    coordiate_y: 0,
   }),
 
-  watch:{
-    nom: function(oldNom, newNom){
-      console.log(newNom)
-    }
-  },
-
   mounted(){
-    console.log(channel)
+    
     channel.bind('my-event', data => {this.updateNom(data)});
+    this.initCanvas()
   },
 
   methods:{
-  async envoyerMsg(){
-   let url = 'http://localhost:8000/api/test'
-   let data = {
-     nom : this.nom
-   }
-   let res = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
-            });
-  },
+    async envoyerMsg(){
+    let url = 'http://localhost:8000/api/test'
+    let data = {
+      nom : this.nom
+    }
+    let res = await fetch(url, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(data),
+              });
+    },
 
-  updateNom: function(data){
-    this.nom = data.message
-  }
+    updateNom: function(data){
+      this.nom = data.message
+    },
+
+    initCanvas: function(){
+      this.canvas = document.getElementById('pixel-war');
+      console.log(this.canvas)
+      this.ctx = this.canvas.getContext('2d')
+      console.log(this.ctx)
+    },
+
+    clicCanvas: function(event){ // When a user clic we retrieve the coordinates of the click
+      this.coordinate_x = event.offsetX;
+      this.coordinate_y = event.offsetY;
+      console.log('x: ' + this.coordinate_x + ', y: '+ this.coordinate_y)
+      let data = {x : this.coordinate_x, y : this.coordinate_y, color: '#ff0000'}
+
+      this.drawPoint(data)
+    },
+
+    drawPoint: function(data){ // Function use to draw a point after a click
+    console.log(data.x + ' ' + data.y)
+      this.ctx.fillStyle = data.color
+      let x = data.x%10
+      console.log(x)
+      this.ctx.fillRect(data.x, data.y, 10, 10)
+    }
   }
 }
 
