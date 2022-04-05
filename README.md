@@ -27,7 +27,7 @@ npm run build
 
 ### TODO
 - Connect a database and store the different point, once a user connects he receive all the point
-- Selection of a color (New template)
 - Display the coordinate of the canvas
 - Display a square where the user is
-- Make possible th shift with the arrow keys
+- Make possible the shift with the arrow keys
+- Change the range of the colors
