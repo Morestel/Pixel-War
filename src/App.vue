@@ -29,11 +29,13 @@ export default {
     ctx : Object,
     coordinate_x: 0,
     coordiate_y: 0,
+    size_pixel : 10,
   }),
 
   mounted(){
     
     channel.bind('my-event', data => {this.updateNom(data)});
+    channel.bind('draw-point', data => {this.drawPoint(data)});
     this.initCanvas()
   },
 
@@ -67,15 +69,24 @@ export default {
       console.log('x: ' + this.coordinate_x + ', y: '+ this.coordinate_y)
       let data = {x : this.coordinate_x, y : this.coordinate_y, color: '#ff0000'}
 
-      this.drawPoint(data)
+      this.drawPoint(data) // We draw the point
+      this.sendPoint(data) // We send the point to the others
+    },
+
+    async sendPoint(data){
+      let url = 'http://localhost:8000/api/draw'
+      let res = await fetch(url, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(data),
+              });
     },
 
     drawPoint: function(data){ // Function use to draw a point after a click
-    console.log(data.x + ' ' + data.y)
       this.ctx.fillStyle = data.color
-      let x = data.x%10
-      console.log(x)
-      this.ctx.fillRect(data.x, data.y, 10, 10)
+      let x = data.x - data.x%this.size_pixel
+      let y = data.y - data.y%this.size_pixel
+      this.ctx.fillRect(x, y, this.size_pixel, this.size_pixel)
     }
   }
 }

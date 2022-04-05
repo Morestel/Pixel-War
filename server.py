@@ -34,5 +34,11 @@ async def read_root(request: Request):
     texte = await request.json()
     print(texte['nom'])
     pusher_client.trigger('my-channel', 'my-event', {'message': texte['nom']})
+    
+@app.post("/api/draw")
+async def draw_point(request: Request):
+    print("Drawing request received")
+    data = await request.json()
+    pusher_client.trigger('my-channel', 'draw-point', data)
 
     
