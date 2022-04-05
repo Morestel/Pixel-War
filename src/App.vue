@@ -1,6 +1,6 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+import ChooseColor from './components/ChooseColor.vue';
+
 </script>
 
 <template>
@@ -10,6 +10,7 @@ import TheWelcome from './components/TheWelcome.vue'
   {{ nom }}
   <br>
   <canvas id="pixel-war" width="500" height="500" @click="clicCanvas($event)"></canvas>
+  <ChooseColor @select="colorSelected($event)" @valid="putPoint()"></ChooseColor>
 </template>
 
 <script>
@@ -30,7 +31,10 @@ export default {
     coordinate_x: 0,
     coordiate_y: 0,
     size_pixel : 10,
+    color: '#fff',
   }),
+
+  emits: ['select', 'valid'],
 
   mounted(){
     
@@ -67,7 +71,11 @@ export default {
       this.coordinate_x = event.offsetX;
       this.coordinate_y = event.offsetY;
       console.log('x: ' + this.coordinate_x + ', y: '+ this.coordinate_y)
-      let data = {x : this.coordinate_x, y : this.coordinate_y, color: '#ff0000'}
+      
+    },
+
+    putPoint: function(){ // Active when we validate the point, we draw it on the canvas
+      let data = {x : this.coordinate_x, y : this.coordinate_y, color: this.color}
 
       this.drawPoint(data) // We draw the point
       this.sendPoint(data) // We send the point to the others
@@ -87,6 +95,11 @@ export default {
       let x = data.x - data.x%this.size_pixel
       let y = data.y - data.y%this.size_pixel
       this.ctx.fillRect(x, y, this.size_pixel, this.size_pixel)
+    },
+
+    colorSelected: function(event){
+      this.color = event
+      console.log(this.color)
     }
   }
 }
