@@ -53,6 +53,36 @@ export default{
 
 <style scoped>
 
+.box{
+    width:150px;
+    height: 85%;
+    border: 1px solid red;
+    position: fixed;
+    right: 5px;
+    top: 5px;
+    border-radius: 5px;
+    background: rgb(130, 130, 130);
+    overflow-y:scroll;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    
+}
+/* Hide scrollbar for Chrome, Safari and Opera */
+.box::-webkit-scrollbar {
+  display: none;
+}
+.box ul{
+    position: relative;
+    list-style: none;
+    text-align: center;
+    margin-top:5px;
+}
+
+.box .choice{
+    display: relative;
+    margin: auto 0 auto 0;
+}
+
 .color-box {
     width: 60px;
     height: 30px;
