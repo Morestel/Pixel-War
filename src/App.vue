@@ -4,13 +4,13 @@ import ChooseColor from './components/ChooseColor.vue';
 </script>
 
 <template>
-  Slt
-  <input v-model="nom" />
-  <button @click="envoyerMsg()">Envoyer</button>
-  {{ nom }}
-  <br>
-  <canvas id="pixel-war" width="500" height="500" @click="clicCanvas($event)"></canvas>
+  <svg id="pixel-select" width="3000" height="3000">
+    <foreignObject :x="calc.x" :y="calc.y" :width="size_pixel" :height="size_pixel"><img src="./assets/pixel-select.png" alt=""></foreignObject>
+  </svg>
+  <canvas id="pixel-war" width="3000" height="3000" @click="clicCanvas($event)" style="position:absolute;"></canvas>
   <ChooseColor @select="colorSelected($event)" @valid="putPoint()"></ChooseColor>
+  
+  
 </template>
 
 <script>
@@ -24,14 +24,13 @@ import ChooseColor from './components/ChooseColor.vue';
 
 export default {
   data: () => ({
-    ds : null,
-    nom :'',
     canvas : '',
     ctx : Object,
     coordinate_x: 0,
     coordiate_y: 0,
     size_pixel : 10,
     color: '#fff',
+    calc: {x:0, y:0, color:'#fff'}  
   }),
 
   emits: ['select', 'valid'],
@@ -44,18 +43,14 @@ export default {
     this.loadData()
   },
 
-  methods:{
-    async envoyerMsg(){
-    let url = 'http://localhost:8000/api/test'
-    let data = {
-      nom : this.nom
+  watch:{
+    coordinate_x: function(newX, oldX){ // Update of the calc
+      console.log('Old : ' + oldX)
+      console.log('New : ' + newX)
     }
-    let res = await fetch(url, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify(data),
-              });
-    },
+  },
+
+  methods:{
 
     async loadData(){
       let url = 'http://localhost:8000/api/get_all'
@@ -81,11 +76,27 @@ export default {
       this.coordinate_x = event.offsetX;
       this.coordinate_y = event.offsetY;
       console.log('x: ' + this.coordinate_x + ', y: '+ this.coordinate_y)
-      
+      // Now we update the calc
+      this.updateCalc(this.coordinate_x, this.coordinate_y);
+
+    },
+
+    updateCalc: function(newX, newY){
+      // this.ctx.globalAlpha = 0.5
+      // this.ctx.fillStyle = this.calc.color;
+      let x = newX - newX % this.size_pixel;
+      let y = newY - newY % this.size_pixel;
+      // this.ctx.fillRect(x, y, this.size_pixel, this.size_pixel);
+      // this.ctx.globalAlpha = 1
+
+      this.calc.x = x;
+      this.calc.y = y;
     },
 
     putPoint: function(){ // Active when we validate the point, we draw it on the canvas
-      let data = {x : this.coordinate_x, y : this.coordinate_y, color: this.color}
+      let x = this.coordinate_x - this.coordinate_x % this.size_pixel
+      let y = this.coordinate_y - this.coordinate_y % this.size_pixel
+      let data = {x : x, y : y, color: this.color}
 
       this.drawPoint(data) // We draw the point
       this.sendPoint(data) // We send the point to the others
@@ -102,15 +113,12 @@ export default {
 
     drawPoint: function(data){ // Function use to draw a point after a click
       this.ctx.fillStyle = data.color
-      let x = data.x - data.x%this.size_pixel
-      let y = data.y - data.y%this.size_pixel
-      this.ctx.fillRect(x, y, this.size_pixel, this.size_pixel)
-      console.log('Drawing point at x: ' + x + ', y: '+ y)
+      this.ctx.fillRect(data.x, data.y, this.size_pixel, this.size_pixel)
+      console.log('Drawing point at x: ' + data.x + ', y: '+ data.y)
     },
 
     colorSelected: function(event){
       this.color = event
-      console.log(this.color)
     }
   }
 }
@@ -123,62 +131,25 @@ export default {
 <style>
 @import './assets/base.css';
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-
-  font-weight: normal;
+*{
+  margin:0;
+  padding:0;
 }
 
-header {
-  line-height: 1.5;
+html, body{
+  min-width: 100%;
+  min-height: 100%;
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+#pixel-select{
+  position:absolute;
 }
 
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
+#pixel-select img{
+  margin:0;
+  top:0;
+  padding: 0;
+  position: absolute;
 }
 
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
-}
-
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
-
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
-
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-}
 </style>

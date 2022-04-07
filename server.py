@@ -18,7 +18,14 @@ def setup_database(): # We build the database
     )
     """)
     conn.commit()
+    # cursor = conn.cursor()
+    # cursor.execute("""
+    # DROP TABLE pixel
+    # """)
+    # conn.commit()
     conn.close()
+    
+# setup_database()
     
 def insert_color(x, y, color): # We insert the color in the database
     conn = sqlite3.connect('pixel_base.db')
