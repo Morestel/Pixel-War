@@ -4,11 +4,16 @@ import ChooseColor from './components/ChooseColor.vue';
 </script>
 
 <template>
+  <div class="loader"></div>
   <svg id="pixel-select" width="3000" height="3000">
-    <foreignObject :x="calc.x" :y="calc.y" :width="size_pixel" :height="size_pixel"><img src="./assets/pixel-select.png" alt=""></foreignObject>
+    <foreignObject :x="calc.x-1" :y="calc.y-1" width="12" height="12"><img src="./assets/pixel-select.png" alt=""></foreignObject>
   </svg>
   <canvas id="pixel-war" width="3000" height="3000" @click="clicCanvas($event)" style="position:absolute;"></canvas>
   <ChooseColor @select="colorSelected($event)" @valid="putPoint()"></ChooseColor>
+  <div class="timer">
+    {{ timer }}
+  </div>
+  
   
   
 </template>
@@ -22,6 +27,9 @@ import ChooseColor from './components/ChooseColor.vue';
     var channel = pusher.subscribe('my-channel');
    
 
+$(window).load(function() {
+$(".loader").fadeOut("1000"); })
+
 export default {
   data: () => ({
     canvas : '',
@@ -30,7 +38,8 @@ export default {
     coordiate_y: 0,
     size_pixel : 10,
     color: '#fff',
-    calc: {x:0, y:0, color:'#fff'}  
+    calc: {x:0, y:0, color:'#fff'}  ,
+    timer: 0,
   }),
 
   emits: ['select', 'valid'],
@@ -47,6 +56,19 @@ export default {
     coordinate_x: function(newX, oldX){ // Update of the calc
       console.log('Old : ' + oldX)
       console.log('New : ' + newX)
+    },
+
+    timer: {
+      handler(value) {
+
+        if (value > 0) {
+          setTimeout(() => {
+            this.timer--;
+          }, 1000);
+        }
+      console.log(this.timer)
+      },
+      immediate: true // This ensures the watcher is triggered upon creation
     }
   },
 
@@ -78,7 +100,11 @@ export default {
       console.log('x: ' + this.coordinate_x + ', y: '+ this.coordinate_y)
       // Now we update the calc
       this.updateCalc(this.coordinate_x, this.coordinate_y);
-
+      // And we display the box to choose the color if it's hidden
+      let box = document.getElementById('box')
+      if (box.classList.contains('hidden')){
+        box.classList.remove('hidden')
+      }
     },
 
     updateCalc: function(newX, newY){
@@ -94,12 +120,16 @@ export default {
     },
 
     putPoint: function(){ // Active when we validate the point, we draw it on the canvas
-      let x = this.coordinate_x - this.coordinate_x % this.size_pixel
-      let y = this.coordinate_y - this.coordinate_y % this.size_pixel
-      let data = {x : x, y : y, color: this.color}
+      // But if the timer isn't 0 we don't draw the point
+      if(this.timer == 0){
+        let x = this.coordinate_x - this.coordinate_x % this.size_pixel
+        let y = this.coordinate_y - this.coordinate_y % this.size_pixel
+        let data = {x : x, y : y, color: this.color}
 
-      this.drawPoint(data) // We draw the point
-      this.sendPoint(data) // We send the point to the others
+        this.drawPoint(data) // We draw the point
+        this.sendPoint(data) // We send the point to the others
+        this.timer = 60 // We reset the timer
+      }
     },
 
     async sendPoint(data){
@@ -152,4 +182,26 @@ html, body{
   position: absolute;
 }
 
+.loader {
+position : fixed;
+z-index: 9999;
+background : url('./assets/spin.gif') 50% 50% no-repeat;
+top : 0px;
+left : 0px;
+height : 100%;
+width : 100%;
+cursor : wait;
+}
+
+.timer{
+  position: fixed;
+  top: 90%; left: 50%;
+  transform: translate(-50%, -50%);
+  border: 1px solid red;
+  border-radius: 6px;
+  background-color: brown;
+  width: 200px;
+  padding: 5px;
+  text-align: center;
+}
 </style>

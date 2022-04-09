@@ -1,11 +1,11 @@
 <template>
 
-    <div class="box">
+    <div id="box" class="hidden">
         <ul>
             <li v-for="color in colors" :key="color"><div class="color-box" v-bind:style="{background: color}" @click="chooseColor(color)"></div></li>
         </ul>
         <div class="choice">
-            <button>Annuler</button>
+            <button @click="hide()">Annuler</button>
             <button @click="$emit('valid')">Valider</button>
         </div>
     </div>
@@ -45,6 +45,13 @@ export default{
     methods:{
         chooseColor: function(color){
             this.$emit('select', color)
+        },
+
+        hide: function(){
+            // Hide the box
+            let box = document.getElementById('box')
+            box.classList.add('hidden')
+            
         }
     }
 }
@@ -53,7 +60,7 @@ export default{
 
 <style scoped>
 
-.box{
+#box{
     width:150px;
     height: 85%;
     border: 1px solid red;
@@ -68,17 +75,17 @@ export default{
     
 }
 /* Hide scrollbar for Chrome, Safari and Opera */
-.box::-webkit-scrollbar {
+#box::-webkit-scrollbar {
   display: none;
 }
-.box ul{
+#box ul{
     position: relative;
     list-style: none;
     text-align: center;
     margin-top:5px;
 }
 
-.box .choice{
+#box .choice{
     display: relative;
     margin: auto 0 auto 0;
 }
@@ -90,6 +97,10 @@ export default{
     margin: 0 5px;
     border: 1px solid #000;
     cursor: pointer;
+}
+
+.hidden{
+    visibility: hidden;
 }
 
 </style>
